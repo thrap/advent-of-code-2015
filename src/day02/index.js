@@ -10,25 +10,14 @@ const part1 = (rawInput) => {
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
 
-  return
+  return input.reduce((acc, [l, w, h]) => acc + Math.min(2*l+2*w, 2*l+2*h, 2*w+2*h) + l*w*h, 0)
 }
 
-const part1Input = `2x3x4
-1x1x10`
-const part2Input = part1Input
 run({
   part1: {
-    tests: [
-      { input: part1Input, expected: 58 + 43 }
-    ],
     solution: part1,
   },
   part2: {
-    tests: [
-      { input: part2Input, expected: "" }
-    ],
     solution: part2,
   },
-  trimTestInputs: true,
-  onlyTests: false,
 })
