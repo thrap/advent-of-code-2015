@@ -28,23 +28,29 @@ const part1 = (rawInput) => {
 
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
+  const grid = Array(1000).fill(0).map(_ => Array(1000).fill(0))
+  input.forEach(([command, [fromX, fromY], [toX, toY]]) => {
+    for (var x = fromX; x <= toX; x++) {
+      for (var y = fromY; y <= toY; y++) {
+        if (command == 'on') {
+          grid[x][y] += 1
+        } else if (command == 'off') {
+          grid[x][y] = Math.max(grid[x][y] - 1, 0)
+        } else {
+          grid[x][y] += 2
+        }
+      }
+    }
+  })
 
-  return
+  return grid.flat().reduce((acc, v) => acc + v)
 }
 
-const part1Input = ``
-const part2Input = part1Input
 run({
   part1: {
-    tests: [
-    ],
     solution: part1,
   },
   part2: {
-    tests: [
-    ],
     solution: part2,
   },
-  trimTestInputs: true,
-  onlyTests: false,
 })
