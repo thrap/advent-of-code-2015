@@ -1,43 +1,39 @@
 import run from "aocrunner"
 
-const parseInput = (rawInput) => rawInput.split('')
+const parseInput = (rawInput) => rawInput.split('').map(c => dirs[c])
 
 const dirs = { '^': [0, 1], 'v': [0, -1], '<': [-1, 0], '>': [1, 0] }
 
-const part1 = (rawInput) => {
-  const input = parseInput(rawInput)
+const deliver = (path, presents) => {
   var [x, y] = [0, 0]
-  const presents = { '0,0': true }
-  input.map(c => dirs[c]).forEach(([dx, dy]) => {
+  path.forEach(([dx, dy]) => {
     x += dx
     y += dy
     presents[[x, y]] = true
   });
+  return presents
+}
 
-  return Object.keys(presents).length
+const part1 = (rawInput) => {
+  const path = parseInput(rawInput)
+
+  return Object.keys(deliver(path, { '0,0': true })).length
 }
 
 const part2 = (rawInput) => {
-  const input = parseInput(rawInput)
+  const path = parseInput(rawInput)
+  const santa = path.filter((_, i) => i % 2 == 0)
+  const robo = path.filter((_, i) => i % 2 == 1)
 
-  return
+  const presents = deliver(robo, deliver(santa, { '0,0': true }))
+  return Object.keys(presents).length
 }
 
-const part1Input = `^v^v^v^v^v`
-const part2Input = part1Input
 run({
   part1: {
-    tests: [
-      { input: part1Input, expected: 2 }
-    ],
     solution: part1,
   },
   part2: {
-    tests: [
-      { input: part2Input, expected: "" }
-    ],
     solution: part2,
   },
-  trimTestInputs: true,
-  onlyTests: false,
 })
