@@ -10,8 +10,12 @@ const part1 = (rawInput) => {
 
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
-
-  return
+  var floor = 0
+  for (var i = 0; i < input.length; i++) {
+    floor += input[i] == '(' ? 1 : -1
+    if (floor == -1)
+      return i + 1
+  }
 }
 
 run({
