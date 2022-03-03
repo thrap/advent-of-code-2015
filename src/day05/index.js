@@ -16,7 +16,11 @@ const part1 = (rawInput) => {
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
 
-  return
+  const isNice = str => {
+    return /(..).*\1/.test(str)
+      && /(.).\1/.test(str)
+  }
+  return input.filter(s => isNice(s)).length
 }
 
 run({
