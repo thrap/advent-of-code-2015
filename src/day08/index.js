@@ -13,20 +13,16 @@ const part1 = (rawInput) => {
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
 
-  return
+  const encodedLength = input.map(x => JSON.stringify(x).length).reduce((acc, x) => acc + x)
+
+  return encodedLength - rawInput.replace(/\n/g, '').length
 }
 
-const part2Input = ``
 run({
   part1: {
     solution: part1,
   },
   part2: {
-    tests: [
-      { input: part2Input, expected: "" }
-    ],
     solution: part2,
   },
-  trimTestInputs: true,
-  onlyTests: false,
 })
