@@ -15,8 +15,19 @@ const part1 = (input) => {
 }
 
 const part2 = (input) => {
+  var sum = 0
+  const rec = json => {
+    if (typeof json == 'string') return
+    if (typeof json == 'number')
+      sum += json
 
-  return
+    if (!Array.isArray(json) && Object.values(json).includes('red')) return
+
+    Object.values(json).forEach(rec)
+  }
+  rec(JSON.parse(input))
+
+  return sum
 }
 
 run({
@@ -24,9 +35,6 @@ run({
     solution: part1,
   },
   part2: {
-    tests: [
-      { input: '""', expected: "" }
-    ],
     solution: part2,
   },
 })
