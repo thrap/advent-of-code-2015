@@ -29,7 +29,7 @@ const isValid = arr => {
 }
 
 const part1 = (input) => {
-  var arr = input.split('').map(x => alphabet.indexOf(x))
+  var arr = increment(input.split('').map(x => alphabet.indexOf(x)))
 
   while (!isValid(arr)) {
     arr = increment(arr)
@@ -39,7 +39,7 @@ const part1 = (input) => {
 }
 
 const part2 = (input) => {
-
+  return part1(part1(input))
 }
 
 run({
