@@ -1,15 +1,12 @@
 import run from "aocrunner"
 
-const part1 = (input) => {
-  for (var i = 0; i < 40; i++) {
-    input = input.replace(/(.)(\1)*/g, (a,b) => a.length + ''+b)
-  }
+const f = str => str.replace(/(.)(\1)*/g, (a,b) => a.length + ''+b)
 
-  return input.length
-}
+const steps = (str, n) => n > 0 ? steps(f(str), n - 1) : str.length
 
-const part2 = (input) => {
-}
+const part1 = (input) => steps(input, 40)
+
+const part2 = (input) => steps(input, 50)
 
 run({
   part1: {
