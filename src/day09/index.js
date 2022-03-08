@@ -38,8 +38,31 @@ const part1 = (rawInput) => {
 
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
+  const graph = {}
 
-  return
+  const cities = Set.of(...input.map(([a,b]) => [a,b]).flat())
+  cities.forEach(city => {
+    graph[city] = {}
+  })
+
+  input.forEach(([a, b, dist]) => {
+    graph[a][b] = dist
+    graph[b][a] = dist
+  })
+
+  var max = 0
+  const perms = (cities, last, acc) => {
+    if (cities.size == 0) {
+      max = Math.max(max, acc)
+      return
+    }
+    cities.forEach(city => {
+      perms(cities.remove(city), city, acc + graph[city][last] || 0)
+    })
+  }
+
+  perms(cities, '', 0)
+  return max
 }
 
 run({
