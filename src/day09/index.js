@@ -1,69 +1,29 @@
 import run from "aocrunner"
 import { Set } from 'immutable'
 
-const parseInput = (rawInput) => rawInput.split('\n').map(l => {
-  const [s, dist] = l.split(' = ')
-  const [a, b] = s.split(' to ')
-  return [a,b, +dist]
-})
+const graph = (input) => input.split('\n').reduce((graph, l) => {
+    const [s, dist] = l.split(' = ')
+    const [a, b] = s.split(' to ')
+    graph[a] = Object.assign({ [b]: +dist }, graph[a])
+    graph[b] = Object.assign({ [a]: +dist }, graph[b])
+    return graph
+  }, {})
 
-const part1 = (rawInput) => {
-  const input = parseInput(rawInput)
-  const graph = {}
+const solve = (graph, f) => {
+  const rec = (cities, last, acc) => {
+    if (cities.size == 0) return acc
 
-  const cities = Set.of(...input.map(([a,b]) => [a,b]).flat())
-  cities.forEach(city => {
-    graph[city] = {}
-  })
+    const toDistance = city => rec(cities.remove(city), city, acc + graph[city][last] || 0)
 
-  input.forEach(([a, b, dist]) => {
-    graph[a][b] = dist
-    graph[b][a] = dist
-  })
-
-  var min = Number.MAX_VALUE
-  const perms = (cities, last, acc) => {
-    if (cities.size == 0) {
-      min = Math.min(min, acc)
-      return
-    }
-    cities.forEach(city => {
-      perms(cities.remove(city), city, acc + graph[city][last] || 0)
-    })
+    return f(...cities.map(toDistance))
   }
 
-  perms(cities, '', 0)
-  return min
+  return rec(Set.of(...Object.keys(graph)), '', 0)
 }
 
-const part2 = (rawInput) => {
-  const input = parseInput(rawInput)
-  const graph = {}
+const part1 = (input) => solve(graph(input), Math.min)
 
-  const cities = Set.of(...input.map(([a,b]) => [a,b]).flat())
-  cities.forEach(city => {
-    graph[city] = {}
-  })
-
-  input.forEach(([a, b, dist]) => {
-    graph[a][b] = dist
-    graph[b][a] = dist
-  })
-
-  var max = 0
-  const perms = (cities, last, acc) => {
-    if (cities.size == 0) {
-      max = Math.max(max, acc)
-      return
-    }
-    cities.forEach(city => {
-      perms(cities.remove(city), city, acc + graph[city][last] || 0)
-    })
-  }
-
-  perms(cities, '', 0)
-  return max
-}
+const part2 = (input) => solve(graph(input), Math.max)
 
 run({
   part1: {
