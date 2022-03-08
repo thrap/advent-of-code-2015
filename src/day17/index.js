@@ -17,7 +17,25 @@ const part1 = (rawInput) => {
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
 
-  return
+  var minContainers = Number.MAX_VALUE
+  var count = 0
+  const f = (rest, i, containers) => {
+    if (i == input.length + 1 || rest < 0 || containers > minContainers) {
+      return
+    }
+    if (rest == 0) {
+      if (containers < minContainers) {
+        minContainers = containers
+        count = 0
+      }
+      count += 1
+      return
+    }
+    f(rest, i+1, containers) + f(rest-input[i], i+1, containers + 1)
+  }
+  f(150, 0, 0)
+
+  return count
 }
 
 run({
