@@ -1,6 +1,8 @@
 import run from "aocrunner"
 
-const parseInput = (rawInput) => rawInput
+const re = /(.*)/
+const parseLine = l => l.match(re).slice(1).map(x => +x ? +x : x)
+const parseInput = rawInput => rawInput//.split('\n')//.map(parseLine)
 
 const part1 = (rawInput) => {
   const input = parseInput(rawInput)
@@ -30,6 +32,5 @@ run({
     ],
     solution: part2,
   },
-  trimTestInputs: true,
   onlyTests: false,
 })
