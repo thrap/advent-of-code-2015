@@ -24,29 +24,28 @@ const part1 = (rawInput) => {
 }
 
 const part2 = (rawInput) => {
-  const input = parseInput(rawInput)
+  var [str, rules] = parseInput(rawInput)
+  rules = rules.map(x => x.reverse())
 
-  return
+  var count = 0
+
+  for (var i = 0; str.length > 1; i++) {
+    rules.forEach(([a,b]) => {
+      if (str.includes(a)) {
+        count++
+        str = str.replace(a, b)
+      }
+    })
+  }
+
+  return count
 }
 
-const part1Input = `H => HO
-H => OH
-O => HH
-
-HOHOHO`
-const part2Input = part1Input
 run({
   part1: {
-    tests: [
-      { input: part1Input, expected: 7 }
-    ],
     solution: part1,
   },
   part2: {
-    tests: [
-      { input: part2Input, expected: "" }
-    ],
     solution: part2,
   },
-  onlyTests: false,
 })
