@@ -19,6 +19,7 @@ const part1 = (rawInput) => {
     cars: 2,
     perfumes: 1
   }
+
   const numbered = input.map((props, i) => [props, i + 1])
   return numbered.find(([props,]) => Object.keys(props).every(k => props[k] == correct[k]))[1]
 }
@@ -26,7 +27,21 @@ const part1 = (rawInput) => {
 const part2 = (rawInput) => {
   const input = parseInput(rawInput)
 
-  return
+  const correct = {
+    children: x => x == 3,
+    cats: x => x > 7,
+    samoyeds: x => x == 2,
+    pomeranians: x => x < 3,
+    akitas: x => x == 0,
+    vizslas: x => x == 0,
+    goldfish: x => x < 5,
+    trees: x => x > 3,
+    cars: x => x == 2,
+    perfumes: x => x == 1,
+  }
+
+  const numbered = input.map((props, i) => [props, i + 1])
+  return numbered.find(([props,]) => Object.keys(props).every(k => correct[k](props[k])))[1]
 }
 
 run({
