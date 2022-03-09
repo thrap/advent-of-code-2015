@@ -29,7 +29,15 @@ const part1 = (rawInput) => {
 }
 
 const part2 = (rawInput) => {
+  const goal = parseInput(rawInput)
 
+  const d = n => 11 * divisors(n).filter(x => n / x <= 50).reduce((acc, x) => acc + x, 0);
+
+  var n = 0
+  while (d(n) < goal)
+    n++
+
+  return n
 }
 
 run({
