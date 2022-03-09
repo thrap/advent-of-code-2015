@@ -1,50 +1,47 @@
 import run from "aocrunner"
 
-const re = /(.*)/
-const parseLine = l => l.match(re).slice(1).map(x => +x ? +x : x)
-const parseInput = rawInput => rawInput.replace(/,/g, '').split('\n')//.map(parseLine)
+const parseInput = rawInput => rawInput.replace(/,/g, '').split('\n')
 
-const part1 = (rawInput) => {
-  const input = parseInput(rawInput)
-  const register = [0, 0]
-
+const execute = (register, program) => {
   var i = 0
-  while (i < input.length) {
-    const [inst, reg, offset] = input[i].split(' ')
+  while (i < program.length) {
+    const [inst, reg, offset] = program[i].split(' ')
     const idx = reg == 'a' ? 0 : 1
     if (inst == 'inc') {
       register[idx] ++
-      i++
     } else if (inst == 'tpl') {
       register[idx] *= 3
-      i++
     } else if (inst == 'hlf') {
       register[idx] = Math.floor(register[idx] / 2)
-      i++
     } else if (inst == 'jmp') {
       i += +reg
+      continue
     } else if (inst == 'jie') {
       if (register[idx] % 2 == 0) {
         i += +offset
-      } else {
-        i++
+        continue
       }
     } else if (inst == 'jio') {
       if (register[idx] == 1) {
         i += +offset
-      } else {
-        i++
+        continue
       }
-    } else {
-      throw 1
     }
+    i++
   }
-
   return register[1]
 }
 
-const part2 = (rawInput) => {
+const part1 = (rawInput) => {
+  const program = parseInput(rawInput)
 
+  return execute([0,0], program)
+}
+
+const part2 = (rawInput) => {
+  const program = parseInput(rawInput)
+
+  return execute([1,0], program)
 }
 
 run({
