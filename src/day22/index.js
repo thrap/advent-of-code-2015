@@ -2,149 +2,77 @@ import run from "aocrunner"
 
 const parseInput = rawInput => rawInput.split('\n').map(l => +l.split(': ')[1])
 
-const part1 = (rawInput) => {
-  const [HP, MANA, ARMOR, BOSS] = [0, 1, 2, 3]
+const [HP, MANA, ARMOR, BOSS] = [0, 1, 2, 3]
+const missile = stats => stats.map((x, i) => i == MANA ? x - 53 : (i == BOSS ? x - 4 : x))
+const drain = stats => stats.map((x, i) => i == MANA ? x - 73 : (i == BOSS ? x - 2 : (i == HP ? x + 2 : x)))
 
+const castShield = stats => stats.map((x, i) => i == MANA ? x - 113 : x)
+const shieldEffect = stats => stats.map((x, i) => i == ARMOR ? 7 : x)
+const castPoison = stats => stats.map((x, i) => i == MANA ? x - 173 : x)
+const poisonEffect = stats => stats.map((x, i) => i == BOSS ? x - 3 : x)
+const castRecharge = stats => stats.map((x, i) => i == MANA ? x - 229 : x)
+const rechargeEffect = stats => stats.map((x, i) => i == MANA ? x + 101 : x)
+
+const minMana = (bossHp, bossDamage, playerTurnEffect) => {
   const bossAttack = stats => stats.map((x, i) => i == HP ? x - Math.max(1, bossDamage - stats[ARMOR]) : x)
-  const missile = stats => stats.map((x, i) => i == MANA ? x - 53 : (i == BOSS ? x - 4 : x))
-  const drain = stats => stats.map((x, i) => i == MANA ? x - 73 : (i == BOSS ? x - 2 : (i == HP ? x + 2 : x)))
-
-  const castShield = stats => stats.map((x, i) => i == MANA ? x - 113 : x)
-  const shield = stats => stats.map((x, i) => i == ARMOR ? 7 : x)
-  const castPoison = stats => stats.map((x, i) => i == MANA ? x - 173 : x)
-  const poison = stats => stats.map((x, i) => i == BOSS ? x - 3 : x)
-  const castRecharge = stats => stats.map((x, i) => i == MANA ? x - 229 : x)
-  const recharge = stats => stats.map((x, i) => i == MANA ? x + 101 : x)
 
   var minMana = Number.MAX_VALUE
-  const fight = (turn, stats, shieldDuration, poisonDuration, rechargeDuration, casts, mana) => {
+
+  const simulate = (turn, stats, shield, poison, recharge, mana) => {
 
     if (mana > minMana || stats[HP] <= 0 || stats[MANA] < 0) return
 
-    if (shieldDuration >= 0) {
-      stats = shield(stats)
+    if (shield >= 0) {
+      stats = shieldEffect(stats)
     } else {
       stats = stats.map((x, i) => i == ARMOR ? 0 : x)
     }
-    if (poisonDuration >= 0) {
-      stats = poison(stats)
+    if (poison >= 0) {
+      stats = poisonEffect(stats)
     }
-    if (rechargeDuration >= 0) {
-      stats = recharge(stats)
+    if (recharge >= 0) {
+      stats = rechargeEffect(stats)
     }
 
     if (stats[BOSS] <= 0) {
-      if (minMana > mana) {
-        minMana = mana
-        console.log(mana, casts);
-      }
-      return true
+      minMana = Math.min(minMana, mana)
+      return
     }
 
-    if (turn % 2 == 0) {
-      if (stats[HP] <= 0)
-        return
-      fight(turn + 1, missile(stats), shieldDuration - 1, poisonDuration - 1, rechargeDuration - 1, casts.concat(['missile']), mana + 53)
-      fight(turn + 1, drain(stats), shieldDuration - 1, poisonDuration - 1, rechargeDuration - 1, casts.concat(['drain']), mana + 73)
-      if (shieldDuration <= 0) {
-        fight(turn + 1, castShield(stats), 5, poisonDuration - 1, rechargeDuration - 1, casts.concat(['shield']), mana + 113)
-      }
-      if (poisonDuration <= 0) {
-        fight(turn + 1, castPoison(stats), shieldDuration - 1, 5, rechargeDuration - 1, casts.concat(['poison']), mana + 173)
-      }
-      if (rechargeDuration <= 0) {
-        fight(turn + 1, castRecharge(stats), shieldDuration -1, poisonDuration - 1, 4, casts.concat(['recharge']), mana + 229)
-      }
-    } else {
-      fight(turn + 1, bossAttack(stats), shieldDuration - 1, poisonDuration - 1, rechargeDuration - 1, casts, mana)
+    if (turn % 2 == 1) {
+      simulate(turn + 1, bossAttack(stats), shield - 1, poison - 1, recharge - 1, mana)
+      return
+    }
+
+    stats = playerTurnEffect(stats)
+
+    simulate(turn + 1, missile(stats), shield - 1, poison - 1, recharge - 1, mana + 53)
+    simulate(turn + 1, drain(stats), shield - 1, poison - 1, recharge - 1, mana + 73)
+    if (shield <= 0) {
+      simulate(turn + 1, castShield(stats), 5, poison - 1, recharge - 1, mana + 113)
+    }
+    if (poison <= 0) {
+      simulate(turn + 1, castPoison(stats), shield - 1, 5, recharge - 1, mana + 173)
+    }
+    if (recharge <= 0) {
+      simulate(turn + 1, castRecharge(stats), shield - 1, poison - 1, 4, mana + 229)
     }
   }
-  const [bossHp, bossDamage] = parseInput(rawInput)
 
-
-
-  const initialStats = []
-  initialStats[HP] = 50
-  initialStats[MANA] = 500
-  initialStats[ARMOR] = 0
-  initialStats[BOSS] = bossHp
-
-  fight(0, initialStats, -1, -1, -1, [], 0)
-
+  simulate(0, [50, 500, 0, bossHp], -1, -1, -1, 0)
   return minMana
 }
 
-const part2 = (rawInput) => {
-  const [HP, MANA, ARMOR, BOSS] = [0, 1, 2, 3]
-
-  const bossAttack = stats => stats.map((x, i) => i == HP ? x - Math.max(1, bossDamage - stats[ARMOR]) : x)
-  const missile = stats => stats.map((x, i) => i == MANA ? x - 53 : (i == BOSS ? x - 4 : x))
-  const drain = stats => stats.map((x, i) => i == MANA ? x - 73 : (i == BOSS ? x - 2 : (i == HP ? x + 2 : x)))
-
-  const castShield = stats => stats.map((x, i) => i == MANA ? x - 113 : x)
-  const shield = stats => stats.map((x, i) => i == ARMOR ? 7 : x)
-  const castPoison = stats => stats.map((x, i) => i == MANA ? x - 173 : x)
-  const poison = stats => stats.map((x, i) => i == BOSS ? x - 3 : x)
-  const castRecharge = stats => stats.map((x, i) => i == MANA ? x - 229 : x)
-  const recharge = stats => stats.map((x, i) => i == MANA ? x + 101 : x)
-
-  var minMana = Number.MAX_VALUE
-  const fight = (turn, stats, shieldDuration, poisonDuration, rechargeDuration, casts, mana) => {
-
-    if (mana > minMana || stats[HP] <= 0 || stats[MANA] < 0) return
-
-    if (shieldDuration >= 0) {
-      stats = shield(stats)
-    } else {
-      stats = stats.map((x, i) => i == ARMOR ? 0 : x)
-    }
-    if (poisonDuration >= 0) {
-      stats = poison(stats)
-    }
-    if (rechargeDuration >= 0) {
-      stats = recharge(stats)
-    }
-
-    if (stats[BOSS] <= 0) {
-      if (minMana > mana) {
-        minMana = mana
-        console.log(mana, casts);
-      }
-      return true
-    }
-
-    if (turn % 2 == 0) {
-      stats = stats.map((x, i) => i == HP ? x - 1: x)
-      if (stats[HP] <= 0)
-        return
-      fight(turn + 1, missile(stats), shieldDuration - 1, poisonDuration - 1, rechargeDuration - 1, casts.concat(['missile']), mana + 53)
-      fight(turn + 1, drain(stats), shieldDuration - 1, poisonDuration - 1, rechargeDuration - 1, casts.concat(['drain']), mana + 73)
-      if (shieldDuration <= 0) {
-        fight(turn + 1, castShield(stats), 5, poisonDuration - 1, rechargeDuration - 1, casts.concat(['shield']), mana + 113)
-      }
-      if (poisonDuration <= 0) {
-        fight(turn + 1, castPoison(stats), shieldDuration - 1, 5, rechargeDuration - 1, casts.concat(['poison']), mana + 173)
-      }
-      if (rechargeDuration <= 0) {
-        fight(turn + 1, castRecharge(stats), shieldDuration -1, poisonDuration - 1, 4, casts.concat(['recharge']), mana + 229)
-      }
-    } else {
-      fight(turn + 1, bossAttack(stats), shieldDuration - 1, poisonDuration - 1, rechargeDuration - 1, casts, mana)
-    }
-  }
+const part1 = (rawInput) => {
   const [bossHp, bossDamage] = parseInput(rawInput)
 
+  return minMana(bossHp, bossDamage, stats => stats)
+}
 
+const part2 = (rawInput) => {
+  const [bossHp, bossDamage] = parseInput(rawInput)
 
-  const initialStats = []
-  initialStats[HP] = 50
-  initialStats[MANA] = 500
-  initialStats[ARMOR] = 0
-  initialStats[BOSS] = bossHp
-
-  fight(0, initialStats, -1, -1, -1, [], 0)
-
-  return minMana
+  return minMana(bossHp, bossDamage, stats => stats.map((x, i) => i == HP ? x - 1: x))
 }
 
 run({
